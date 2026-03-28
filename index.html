@@ -7,7 +7,9 @@
     <style>
         body { font-family: 'Pretendard', sans-serif; padding: 15px; background-color: #f8fafc; color: #1e293b; line-height: 1.5; }
         .container { max-width: 500px; margin: 0 auto; background: white; padding: 25px; border-radius: 24px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
-        h2 { text-align: center; font-size: 1.25rem; margin-bottom: 20px; color: #0f172a; }
+        h2 { text-align: center; font-size: 1.25rem; margin-bottom: 5px; color: #0f172a; }
+        /* 날짜 표시 스타일 추가 */
+        .live-date { text-align: center; font-size: 0.8rem; color: #94a3b8; margin-bottom: 20px; font-weight: 500; }
         .input-card { background: #f1f5f9; padding: 15px; border-radius: 16px; margin-bottom: 20px; }
         .input-group { margin-bottom: 12px; }
         label { display: block; font-size: 0.8rem; font-weight: 600; color: #64748b; margin-bottom: 5px; }
@@ -28,6 +30,7 @@
 
 <div class="container">
     <h2>🏡 주택 취득세 & 분양대금 계산기</h2>
+    <div class="live-date" id="liveDate">연동 중...</div>
     
     <div class="input-card">
         <div class="input-group">
@@ -84,7 +87,7 @@
     </div>
 
     <div class="result-section">
-        <div class="section-title">💸 예상 취득세 분석 (2026.03)</div>
+        <div class="section-title">💸 예상 취득세 분석 (<span id="taxStandardDate"></span> 기준)</div>
         <div class="row"><span>적용 총 세율</span><span class="val" id="totalRateDisp">0%</span></div>
         <div class="row"><span>총 세금액</span><span class="val highlight" id="taxAmount">0 원</span></div>
         <div class="tax-detail" id="taxDetailDisp">취득세 0% | 교육세 0% | 농특세 0%</div>
@@ -104,6 +107,19 @@
 </div>
 
 <script>
+    // 페이지 로드 시 실시간 날짜 업데이트
+    window.onload = function() {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = today.getMonth() + 1;
+        const day = today.getDate();
+        const fullDate = `${year}.${month < 10 ? '0' + month : month}.${day < 10 ? '0' + day : day}`;
+        
+        document.getElementById('liveDate').innerText = `Data Update: ${fullDate}`;
+        document.getElementById('taxStandardDate').innerText = `${year}.${month < 10 ? '0' + month : month}`;
+        calculate();
+    };
+
     function toggleContractInput() {
         const type = document.getElementById('contractType').value;
         const input = document.getElementById('customContractInput');
@@ -157,7 +173,7 @@
         midRow.style.display = (split === 0) ? 'none' : 'flex';
         
         const bLabel = document.getElementById('balanceLabel');
-        const bPercent = ((balance / price) * 100).toFixed(0);
+        const bPercent = price > 0 ? ((balance / price) * 100).toFixed(0) : 0;
         bLabel.innerText = `잔금 (${bPercent}%)`;
 
         // 중도금 회차 상세
